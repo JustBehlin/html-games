@@ -21,6 +21,6 @@ Double-click any `.html` file.
 
 1. Settings -> Pages
 2. Source: Deploy from a branch -> `main` -> `/ (root)`
-3. Open `https://YOURUSERNAME.github.io/REPO-NAME/snake.html`
+3. Open `https://JustBehlin.github.io/html-games/snake.html`
 
 Made by love, b3hlin
