@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="en"><head>
+<!-- made by love b3hlin --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Gravity Balls</title><style>
+:root{--bg:#f3efe6;--fg:#222a44;--accent:#e4572e;--btn:#222a44;--btnt:#f3efe6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10131f;--fg:#dfe6ff;--accent:#ff7a59;--btn:#dfe6ff;--btnt:#10131f}}
+:root[data-theme="dark"]{--bg:#10131f;--fg:#dfe6ff;--accent:#ff7a59;--btn:#dfe6ff;--btnt:#10131f}
+html,body{height:100%;margin:0}body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;touch-action:none}
+canvas{display:block}.ui{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));pointer-events:none}.ui>*{pointer-events:auto}
+button{background:var(--btn);color:var(--btnt);border:0;border-radius:999px;padding:10px 18px;font-size:15px;cursor:pointer}.hint{font-size:14px;opacity:.8}
+</style></head><body>
+<canvas id="c"></canvas><div class="ui"><button id="f">flip gravity</button><button id="k">clear</button><span class="hint">tap to drop balls</span></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');let W,H,gv=.4;const B=[];
+function size(){W=c.width=innerWidth;H=c.height=innerHeight}size();addEventListener('resize',size);
+function add(px,py){B.push({x:px,y:py,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*4,r:10+Math.random()*22,h:Math.random()*360});if(B.length>120)B.shift()}
+let dn=false;c.addEventListener('pointerdown',e=>{dn=true;add(e.clientX,e.clientY)});addEventListener('pointerup',()=>dn=false);c.addEventListener('pointermove',e=>{if(dn&&Math.random()<.4)add(e.clientX,e.clientY)});
+document.getElementById('f').onclick=()=>gv=-gv;document.getElementById('k').onclick=()=>B.length=0;
+function loop(){x.clearRect(0,0,W,H);
+for(const b of B){b.vy+=gv;b.x+=b.vx;b.y+=b.vy;b.vx*=.999;
+if(b.x<b.r){b.x=b.r;b.vx*=-.9}if(b.x>W-b.r){b.x=W-b.r;b.vx*=-.9}
+if(b.y>H-b.r){b.y=H-b.r;b.vy*=-.85}if(b.y<b.r){b.y=b.r;b.vy*=-.85}}
+for(let i=0;i<B.length;i++)for(let j=i+1;j<B.length;j++){const a=B[i],b=B[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),m=a.r+b.r;
+if(d<m&&d>0){const nx=dx/d,ny=dy/d,o=(m-d)/2;a.x-=nx*o;a.y-=ny*o;b.x+=nx*o;b.y+=ny*o;const p=(a.vx-b.vx)*nx+(a.vy-b.vy)*ny;a.vx-=p*nx;a.vy-=p*ny;b.vx+=p*nx;b.vy+=p*ny}}
+for(const b of B){x.fillStyle='hsl('+b.h+',75%,58%)';x.beginPath();x.arc(b.x,b.y,b.r,0,6.283);x.fill()}
+requestAnimationFrame(loop)}loop();
+/* made by love b3hlin */
+</script><!-- made by love b3hlin -->
+</body></html>
