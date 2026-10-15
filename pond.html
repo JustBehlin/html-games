@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- made by love b3hlin -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tiny Pond</title>
+<style>
+:root{--bg:#cfeaf2;--ring:255,255,255;--text:#0d3b4c;--btn:#0d3b4c;--btnt:#e8f7fb;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1d26;--ring:150,210,230;--text:#bfe3f0;--btn:#bfe3f0;--btnt:#0b1d26}}
+:root[data-theme="dark"]{--bg:#0b1d26;--ring:150,210,230;--text:#bfe3f0;--btn:#bfe3f0;--btnt:#0b1d26}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;touch-action:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.ui{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:center;gap:12px;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.ui>*{pointer-events:auto}
+button{background:var(--btn);color:var(--btnt);border:0;border-radius:999px;padding:10px 18px;font-size:15px;cursor:pointer}
+.hint{font-size:14px;opacity:.75}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="ui"><button id="add">+ duck</button><span class="hint" id="h">tap the pond · 3 ducks</span></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');
+let W,H,dpr=Math.min(window.devicePixelRatio||1,2);
+function size(){W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',size);size();
+const ripples=[],ducks=[];
+function duck(){ducks.push({x:Math.random()*W,y:Math.random()*H*.8,vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.3,p:Math.random()*6.28})}
+for(let i=0;i<3;i++)duck();
+function drop(px,py,m=1){ripples.push({x:px,y:py,r:0,max:140+Math.random()*80*m})}
+let down=false,last=0;
+c.addEventListener('pointerdown',e=>{down=true;drop(e.clientX,e.clientY)});
+addEventListener('pointerup',()=>down=false);
+c.addEventListener('pointermove',e=>{if(down&&performance.now()-last>60){last=performance.now();drop(e.clientX,e.clientY,.5)}});
+document.getElementById('add').onclick=()=>{duck();document.getElementById('h').textContent='tap the pond · '+ducks.length+' ducks'};
+setInterval(()=>drop(Math.random()*W,Math.random()*H,.6),2200);
+function ringColor(){return getComputedStyle(document.documentElement).getPropertyValue('--ring').trim()}
+function frame(t){
+  x.clearRect(0,0,W,H);
+  const rc=ringColor();
+  for(let i=ripples.length-1;i>=0;i--){
+    const r=ripples[i];r.r+=1.6;
+    if(r.r>r.max){ripples.splice(i,1);continue}
+    const a=1-r.r/r.max;
+    x.lineWidth=2;
+    for(let k=0;k<3;k++){const rr=r.r-k*14;if(rr<=0)continue;x.strokeStyle='rgba('+rc+','+(a*(.7-k*.2)).toFixed(3)+')';x.beginPath();x.arc(r.x,r.y,rr,0,6.283);x.stroke()}
+  }
+  x.font='34px serif';x.textAlign='center';x.textBaseline='middle';
+  for(const d of ducks){
+    for(const r of ripples){
+      const dx=d.x-r.x,dy=d.y-r.y,dist=Math.hypot(dx,dy)||1;
+      if(Math.abs(dist-r.r)<18){const f=.05*(1-r.r/r.max);d.vx+=dx/dist*f;d.vy+=dy/dist*f}
+    }
+    d.vx*=.995;d.vy*=.995;
+    d.vx+=(Math.random()-.5)*.01;d.vy+=(Math.random()-.5)*.005;
+    d.x+=d.vx;d.y+=d.vy;
+    if(d.x<-30)d.x=W+30;if(d.x>W+30)d.x=-30;
+    if(d.y<30){d.y=30;d.vy=Math.abs(d.vy)}if(d.y>H-70){d.y=H-70;d.vy=-Math.abs(d.vy)}
+    const bob=Math.sin(t/400+d.p)*3;
+    x.save();x.translate(d.x,d.y+bob);
+    if(d.vx>0)x.scale(-1,1);
+    x.rotate(Math.sin(t/600+d.p)*.08);
+    x.fillText('🦆',0,0);x.restore();
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+/* made by love b3hlin */
+</script>
+<!-- made by love b3hlin -->
+</body>
+</html>

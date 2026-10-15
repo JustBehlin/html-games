@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head>
+<!-- made by love b3hlin --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Pixel Paint</title><style>
+:root{--bg:#f3efe6;--fg:#222a44;--accent:#e4572e;--btn:#222a44;--btnt:#f3efe6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10131f;--fg:#dfe6ff;--accent:#ff7a59;--btn:#dfe6ff;--btnt:#10131f}}
+:root[data-theme="dark"]{--bg:#10131f;--fg:#dfe6ff;--accent:#ff7a59;--btn:#dfe6ff;--btnt:#10131f}
+html,body{height:100%;margin:0}body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;touch-action:none}
+canvas{display:block}.ui{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));pointer-events:none}.ui>*{pointer-events:auto}
+button{background:var(--btn);color:var(--btnt);border:0;border-radius:999px;padding:10px 18px;font-size:15px;cursor:pointer}.hint{font-size:14px;opacity:.8}
+</style></head><body>
+<canvas id="c"></canvas><div class="ui" id="u"></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),N=16,pal=['#111111','#e63946','#f4a261','#f1c40f','#2a9d8f','#3a86ff','#8338ec','#ffffff'];
+const g=Array.from({length:N},()=>Array(N).fill(null));let cur=pal[1],S,cell,down=false;
+function draw(){x.clearRect(0,0,S,S);for(let i=0;i<N;i++)for(let j=0;j<N;j++){x.fillStyle=(i+j)%2?'rgba(128,128,128,.12)':'rgba(128,128,128,.2)';x.fillRect(i*cell,j*cell,cell,cell);if(g[j][i]){x.fillStyle=g[j][i];x.fillRect(i*cell,j*cell,cell,cell)}}}
+function size(){S=Math.floor(Math.min(innerWidth-20,innerHeight-130));cell=Math.floor(S/N);S=cell*N;c.width=S;c.height=S;c.style.margin='10px auto 0';draw()}
+function paint(e){const r=c.getBoundingClientRect(),i=Math.floor((e.clientX-r.left)/cell),j=Math.floor((e.clientY-r.top)/cell);if(i<0||j<0||i>=N||j>=N)return;g[j][i]=cur==='erase'?null:cur;draw()}
+c.addEventListener('pointerdown',e=>{down=true;paint(e)});addEventListener('pointerup',()=>down=false);c.addEventListener('pointermove',e=>{if(down)paint(e)});
+const u=document.getElementById('u');
+pal.forEach(p=>{const b=document.createElement('button');b.style.cssText='width:34px;height:34px;padding:0;border:3px solid var(--fg);background:'+p;b.onclick=()=>cur=p;u.appendChild(b)});
+const e=document.createElement('button');e.textContent='erase';e.onclick=()=>cur='erase';u.appendChild(e);
+const k=document.createElement('button');k.textContent='clear';k.onclick=()=>{g.forEach(r=>r.fill(null));draw()};u.appendChild(k);
+size();addEventListener('resize',size);
+/* made by love b3hlin */
+</script><!-- made by love b3hlin -->
+</body></html>

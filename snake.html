@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="en"><head>
+<!-- made by love b3hlin --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Snake</title><style>
+:root{--bg:#f3efe6;--fg:#222a44;--accent:#e4572e;--btn:#222a44;--btnt:#f3efe6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10131f;--fg:#dfe6ff;--accent:#ff7a59;--btn:#dfe6ff;--btnt:#10131f}}
+:root[data-theme="dark"]{--bg:#10131f;--fg:#dfe6ff;--accent:#ff7a59;--btn:#dfe6ff;--btnt:#10131f}
+html,body{height:100%;margin:0}body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;touch-action:none}
+canvas{display:block}.ui{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));pointer-events:none}.ui>*{pointer-events:auto}
+button{background:var(--btn);color:var(--btnt);border:0;border-radius:999px;padding:10px 18px;font-size:15px;cursor:pointer}.hint{font-size:14px;opacity:.8}
+</style></head><body>
+<canvas id="c"></canvas><div class="ui"><span class="hint" id="h">swipe or arrow keys · tap to restart</span></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),h=document.getElementById('h'),N=18;let S,cell,sn,dir,nd,food,score,dead;
+function size(){S=Math.floor(Math.min(innerWidth-20,innerHeight-110));cell=Math.floor(S/N);S=cell*N;c.width=S;c.height=S;c.style.margin='10px auto 0'}
+function place(){do{food={x:Math.random()*N|0,y:Math.random()*N|0}}while(sn.some(s=>s.x==food.x&&s.y==food.y))}
+function reset(){sn=[{x:9,y:9},{x:8,y:9},{x:7,y:9}];dir=nd={x:1,y:0};score=0;dead=false;place();h.textContent='score 0'}
+function turn(d){if(d.x!=-dir.x||d.y!=-dir.y)nd=d}
+addEventListener('keydown',e=>{const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],s:[0,1],a:[-1,0],d:[1,0]}[e.key];if(m){turn({x:m[0],y:m[1]});e.preventDefault()}});
+let sx,sy;addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;if(dead)reset()});
+addEventListener('pointerup',e=>{const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<20)return;Math.abs(dx)>Math.abs(dy)?turn({x:Math.sign(dx),y:0}):turn({x:0,y:Math.sign(dy)})});
+function step(){if(dead)return;dir=nd;const hd={x:sn[0].x+dir.x,y:sn[0].y+dir.y};
+if(hd.x<0||hd.y<0||hd.x>=N||hd.y>=N||sn.some(s=>s.x==hd.x&&s.y==hd.y)){dead=true;h.textContent='game over · '+score+' · tap to restart';return}
+sn.unshift(hd);if(hd.x==food.x&&hd.y==food.y){score++;h.textContent='score '+score;place()}else sn.pop()}
+function draw(){const cs=getComputedStyle(document.documentElement),fg=cs.getPropertyValue('--fg').trim(),ac=cs.getPropertyValue('--accent').trim();
+x.clearRect(0,0,S,S);x.globalAlpha=.08;x.fillStyle=fg;x.fillRect(0,0,S,S);x.globalAlpha=1;
+x.fillStyle=ac;x.beginPath();x.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.38,0,6.283);x.fill();
+sn.forEach((s,i)=>{x.globalAlpha=dead?.4:1-i/(sn.length+6)*.5;x.fillStyle=fg;x.fillRect(s.x*cell+1,s.y*cell+1,cell-2,cell-2)});x.globalAlpha=1;requestAnimationFrame(draw)}
+size();reset();addEventListener('resize',size);setInterval(step,120);draw();
+/* made by love b3hlin */
+</script><!-- made by love b3hlin -->
+</body></html>
