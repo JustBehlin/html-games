@@ -23,5 +23,5 @@ Double-click any `.html` file.
 2. Source: Deploy from a branch -> `main` -> `/ (root)`
 3. Open `https://JustBehlin.github.io/html-games/snake.html`
 
-Everything is made by claude when bored so ............. yeah
-Made by love, b3hlin
+Everything is made by claude when bored so ............. yeah         
+Made by boredom , b3hlin
