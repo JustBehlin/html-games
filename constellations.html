@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- made by love b3hlin -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Night Sky</title>
+<style>
+:root{--bg1:#f4e9d8;--bg2:#cfd9f0;--star:40,50,110;--line:40,50,110;--text:#28326e;--btn:#28326e;--btnt:#f4e9d8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#05060f;--bg2:#141a3a;--star:255,244,214;--line:160,190,255;--text:#c9d4ff;--btn:#c9d4ff;--btnt:#05060f}}
+:root[data-theme="dark"]{--bg1:#05060f;--bg2:#141a3a;--star:255,244,214;--line:160,190,255;--text:#c9d4ff;--btn:#c9d4ff;--btnt:#05060f}
+html,body{height:100%;margin:0}
+body{background:linear-gradient(var(--bg1),var(--bg2));color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;touch-action:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.ui{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:center;gap:12px;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.ui>*{pointer-events:auto}
+button{background:var(--btn);color:var(--btnt);border:0;border-radius:999px;padding:10px 18px;font-size:15px;cursor:pointer}
+.hint{font-size:14px;opacity:.8}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="ui"><button id="clr">clear</button><span class="hint" id="h">tap to place stars</span></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');
+let W,H,dpr=Math.min(window.devicePixelRatio||1,2);
+function size(){W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',size);size();
+const bg=[],stars=[],shoot=[];
+for(let i=0;i<140;i++)bg.push({x:Math.random(),y:Math.random(),s:Math.random()*1.4+.3,p:Math.random()*6.28});
+c.addEventListener('pointerdown',e=>{
+  stars.push({x:e.clientX,y:e.clientY,born:performance.now(),p:Math.random()*6.28});
+  document.getElementById('h').textContent=stars.length+(stars.length==1?' star':' stars');
+});
+document.getElementById('clr').onclick=()=>{stars.length=0;document.getElementById('h').textContent='tap to place stars'};
+setInterval(()=>{if(Math.random()<.5)shoot.push({x:Math.random()*W,y:Math.random()*H*.4,vx:6+Math.random()*4,vy:2+Math.random()*2,l:1})},2500);
+function col(){return getComputedStyle(document.documentElement)}
+function frame(t){
+  x.clearRect(0,0,W,H);
+  const cs=col(),sc=cs.getPropertyValue('--star').trim(),lc=cs.getPropertyValue('--line').trim();
+  for(const b of bg){
+    x.fillStyle='rgba('+sc+','+(.25+.35*Math.sin(t/700+b.p)).toFixed(2)+')';
+    x.beginPath();x.arc(b.x*W,b.y*H,b.s,0,6.283);x.fill();
+  }
+  for(let i=shoot.length-1;i>=0;i--){
+    const s=shoot[i];s.x+=s.vx;s.y+=s.vy;s.l-=.012;
+    if(s.l<=0){shoot.splice(i,1);continue}
+    x.strokeStyle='rgba('+sc+','+s.l.toFixed(2)+')';x.lineWidth=2;
+    x.beginPath();x.moveTo(s.x,s.y);x.lineTo(s.x-s.vx*7,s.y-s.vy*7);x.stroke();
+  }
+  for(let i=0;i<stars.length;i++){
+    const a=stars[i];
+    const near=stars.map((b,j)=>({j,d:Math.hypot(a.x-b.x,a.y-b.y)})).filter(o=>o.j!==i).sort((p,q)=>p.d-q.d).slice(0,2);
+    for(const n of near){
+      if(n.j<i&&stars.map((b,j)=>({j,d:Math.hypot(stars[n.j].x-b.x,stars[n.j].y-b.y)})).filter(o=>o.j!==n.j).sort((p,q)=>p.d-q.d).slice(0,2).some(o=>o.j===i))continue;
+      const f=Math.min(1,(t-a.born)/600);
+      x.strokeStyle='rgba('+lc+','+(.45*f).toFixed(2)+')';x.lineWidth=1;
+      x.beginPath();x.moveTo(a.x,a.y);x.lineTo(stars[n.j].x,stars[n.j].y);x.stroke();
+    }
+  }
+  for(const a of stars){
+    const age=Math.min(1,(t-a.born)/400),r=(3+Math.sin(t/300+a.p))*age+(1-age)*10;
+    const g=x.createRadialGradient(a.x,a.y,0,a.x,a.y,r*5);
+    g.addColorStop(0,'rgba('+sc+',.9)');g.addColorStop(1,'rgba('+sc+',0)');
+    x.fillStyle=g;x.beginPath();x.arc(a.x,a.y,r*5,0,6.283);x.fill();
+    x.fillStyle='rgba('+sc+',1)';x.beginPath();x.arc(a.x,a.y,r*.7,0,6.283);x.fill();
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+/* made by love b3hlin */
+</script>
+<!-- made by love b3hlin -->
+</body>
+</html>
